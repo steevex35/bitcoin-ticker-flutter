@@ -2,6 +2,10 @@ import 'dart:io';
 
 import 'package:bitcoin_ticker/coin_data.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
+
+import 'package:flutter/services.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -11,7 +15,7 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
 
-  List<DropdownMenuItem> getDropdownItems() {
+  DropdownButton androidDropdownButton() {
     List<DropdownMenuItem<String>> dropdownItems = [];
     for (String currency in currenciesList) {
       var newItem = DropdownMenuItem(
@@ -20,7 +24,39 @@ class _PriceScreenState extends State<PriceScreen> {
       );
       dropdownItems.add(newItem);
     }
-    return dropdownItems;
+    return DropdownButton<String>(
+      value: selectedCurrency,
+      items: dropdownItems,
+      onChanged: (value) {
+        setState(() {
+          selectedCurrency = value;
+        });
+      },
+    );
+  }
+
+  CupertinoPicker iOSPicket() {
+    List<Text> pickerItems = [];
+    for (String currency in currenciesList) {
+      var newItem = Text(currency);
+      pickerItems.add(newItem);
+    }
+    return CupertinoPicker(
+      backgroundColor: Colors.lightBlue,
+      itemExtent: 32.0,
+      onSelectedItemChanged: (selectedIndex) {
+        print(selectedIndex);
+      },
+      children: pickerItems,
+    );
+  }
+
+  Widget getPicker() {
+    if (Platform.isIOS) {
+      return iOSPicket();
+    } else if (Platform.isAndroid) {
+      return androidDropdownButton();
+    }
   }
 
   @override
@@ -55,21 +91,19 @@ class _PriceScreenState extends State<PriceScreen> {
             ),
           ),
           Container(
-              height: 150.0,
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(bottom: 30.0),
-              color: Colors.lightBlue,
-              child: DropdownButton<String>(
-                value: selectedCurrency,
-                items: getDropdownItems(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedCurrency = value;
-                  });
-                },
-              )),
+            height: 150.0,
+            alignment: Alignment.center,
+            padding: EdgeInsets.only(bottom: 30.0),
+            color: Colors.lightBlue,
+            child:
+                iOSPicket(), //Platform.isIOS ? iOSPicket() : androidDropdownButton(),
+          )
         ],
       ),
     );
   }
 }
+
+/**
+
+    **/
